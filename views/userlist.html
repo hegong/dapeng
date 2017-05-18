@@ -1,0 +1,135 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="lib/html5shiv.js"></script>
+<script type="text/javascript" src="lib/respond.min.js"></script>
+<![endif]-->
+<link rel="stylesheet" type="text/css" href="/static/h-ui/css/H-ui.min.css" />
+<link rel="stylesheet" type="text/css" href="/static/h-ui.admin/css/H-ui.admin.css" />
+<link rel="stylesheet" type="text/css" href="/lib/Hui-iconfont/1.0.8/iconfont.css" />
+<link rel="stylesheet" type="text/css" href="/static/h-ui.admin/skin/default/skin.css" id="skin" />
+<link rel="stylesheet" type="text/css" href="/static/h-ui.admin/css/style.css" />
+<!-- <link rel="stylesheet" href="/css/qunit-1.11.0.css">
+<link rel="stylesheet" href="/css/bootstrap-responsive.css"> -->
+<link rel="stylesheet" href="/css/bootstrap.css">
+<title>用户管理</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 用户中心 <span class="c-gray en">&gt;</span> 用户管理 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="page-container">
+
+	<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onclick="member_add('添加用户','/users/add','','510')" class="btn btn-primary radius"><i class="Hui-iconfont">&#xe600;</i> 添加用户</a></span> <span class="r">共有数据：<strong><%=all%></strong> 条</span> </div>
+	<div class="mt-20">
+	<table class="table table-border table-bordered table-hover table-bg table-sort">
+		<thead>
+			<tr class="text-c">
+				<th >ID</th>
+				<th >用户名</th>
+				<th >手机</th>
+				<th >所工作的银行</th>
+				<th >类型</th>
+				<th >上级</th>
+				<th width="100">操作</th>
+			</tr>
+		</thead>
+		<tbody>
+		<%jsondata.forEach(function(j,idx){
+		%>
+			<tr class="text-c">
+			<td><%=idx%></td>
+			<td><%=j.username%></td>
+			<td><%=j.phone%></td>
+			<td><%=j.bid%></td>
+			<td class="td-status">
+			<% if(j.type==1){%>
+				普通员工
+			<% }if(j.type==2){%>
+				技术人员（<%=j.scope%>）
+			<% }if(j.type==3){%>
+				负责人 
+			<%}%>
+			</td>
+			<td>
+				<%=j.pname%>
+			</td>
+			<td class="td-manage">
+			<a title="修改用户" href="javascript:;" onclick="member_edit('修改用户','/users/edit?id=<%=j._id%>','4','','510')" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">修改</i>
+			</a>
+			 <a title="删除" href="javascript:;" onclick="member_del(this,'<%=j._id%>')" class="ml-5" style="text-decoration:none">删除</a>
+			 </td>
+		</tr>
+		<%})%>
+		
+		</tbody>
+	</table>
+	<div id="example"></div>  
+	</div>
+</div>
+<!--_footer 作为公共模版分离出去-->
+<script type="text/javascript" src="/lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="/lib/layer/2.4/layer.js"></script>
+<script type="text/javascript" src="/static/h-ui/js/H-ui.min.js"></script> 
+<script type="text/javascript" src="/static/h-ui.admin/js/H-ui.admin.js"></script>
+<!--/_footer 作为公共模版分离出去-->
+
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="/lib/My97DatePicker/4.8/WdatePicker.js"></script> 
+<script type="text/javascript" src="/lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="/lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript" src="/js/bootstrap-paginator.js"></script> 
+<script type="text/javascript">  
+       var options = {  
+          currentPage:"<%=currentPage%>",  
+           totalPages:"<%=totalPages%>",  
+           size:"normal",  
+           alignment:"center",  
+           itemContainerClass: function (type, page, current) {  
+               return (page === current) ? "active" : "pointer-cursor";  
+           },  
+           onPageClicked: function(e,originalEvent,type,page){  
+               //alert("Page item clicked, type: "+type+" page: "+page);  
+           },  
+           onPageChanged: function(e,oldPage,newPage){  
+               //alert("Current page changed, old: "+oldPage+" new: "+newPage);  
+           },  
+           pageUrl:function(type,page,current){  
+               return "/users/list?pagestart="+page+"&pagesize=10";  
+           }  
+       }  
+ 
+       $("#example").bootstrapPaginator(options);  
+       /*用户-添加*/
+		function member_add(title,url,w,h){
+			layer_show(title,url,w,h);
+		}
+		/*用户-编辑*/
+		function member_edit(title,url,id,w,h){
+			layer_show(title,url,w,h);
+		}
+		/*用户-删除*/
+		function member_del(obj,id){
+			layer.confirm('确认要删除吗？',function(index){
+				$.ajax({
+					type: 'get',
+					url: '/users/del',
+					data:{id:id},
+					dataType: 'json',
+					success: function(data){
+						$(obj).parents("tr").remove();
+						layer.msg('已删除!',{icon:1,time:1000});
+					},
+					error:function(data) {
+						console.log(data.msg);
+					},
+				});		
+			});
+		}
+   </script>  
+</body>
+</html>
